@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <title>CRUD Usuarios - Simple</title>
+        <style>
+            li {
+                margin-bottom: 6px;
+            }
+            button {
+                margin-left: 6px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <h2>Lista de Usuarios</h2>
+        <ul id="userList"></ul>
+
+        <h2>Agregar Usuario</h2>
+        <form id="addUserForm">
+            <input type="number" id="cedula" placeholder="Cédula" required />
+            <input type="text" id="nombre" placeholder="Nombre" required />
+            <input type="text" id="apellido" placeholder="Apellido" required />
+            <input type="text" id="direccion" placeholder="Dirección" required />
+            <input type="text" id="telefono" placeholder="Teléfono" required />
+            <button type="submit">Agregar</button>
+        </form>
+
+        <h2>Actualizar Usuario</h2>
+        <form id="updateUserForm">
+            <input type="number" id="updCedula" placeholder="Cédula" required />
+            <input type="text" id="updNombre" placeholder="Nombre" required />
+            <input type="text" id="updApellido" placeholder="Apellido" required />
+            <input type="text" id="updDireccion" placeholder="Dirección" required />
+            <input type="text" id="updTelefono" placeholder="Teléfono" required />
+            <button type="submit">Actualizar</button>
+        </form>
+
+        <h2>Eliminar Usuario</h2>
+        <form id="deleteUserForm">
+            <input type="number" id="delCedula" placeholder="Cédula" required />
+            <button type="submit">Eliminar</button>
+        </form>
+
+        <h2>Buscar Usuario</h2>
+        <form id="searchUserForm">
+            <input type="number" id="searchCedula" placeholder="Cédula" required />
+            <button type="submit">Buscar</button>
+        </form>
+        <ul id="searchUserList"></ul>
+
+        <script>
+            const userList = document.getElementById('userList');
+
+            // Carga y muestra todos los usuarios
+            function cargarUsuarios() {
+                fetch('/webApp-repaso/Api')
+                        .then(res => res.json())
+                        .then(users => {
+                            userList.innerHTML = '';
+                            users.forEach(u => {
+                                const li = document.createElement('li');
+                                li.textContent = `${u.cedula} - ${u.nombre} ${u.apellido} | ${u.direccion} | ${u.telefono}`;
+                                userList.appendChild(li);
+                            });
+                        })
+                        .catch(err => {
+                            userList.innerHTML = 'Error al cargar usuarios.';
+                            console.error(err);
+                        });
+            }
+
+            cargarUsuarios();
+
+            // Agregar usuario
+            document.getElementById('addUserForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const nuevoUsuario = {
+                    cedula: parseInt(document.getElementById('cedula').value),
+                    nombre: document.getElementById('nombre').value,
+                    apellido: document.getElementById('apellido').value,
+                    direccion: document.getElementById('direccion').value,
+                    telefono: document.getElementById('telefono').value
+                };
+                fetch('/webApp-repaso/Api', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(nuevoUsuario)
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.message || 'Usuario agregado');
+                            cargarUsuarios();
+                            e.target.reset();
+                        })
+                        .catch(err => alert('Error al agregar usuario'));
+            });
+
+            // Actualizar usuario
+            document.getElementById('updateUserForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const usuarioActualizado = {
+                    cedula: parseInt(document.getElementById('updCedula').value),
+                    nombre: document.getElementById('updNombre').value,
+                    apellido: document.getElementById('updApellido').value,
+                    direccion: document.getElementById('updDireccion').value,
+                    telefono: document.getElementById('updTelefono').value
+                };
+                fetch('/webApp-repaso/Api', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(usuarioActualizado)
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.message || 'Usuario actualizado');
+                            cargarUsuarios();
+                            e.target.reset();
+                        })
+                        .catch(err => alert('Error al actualizar usuario'));
+            });
+
+            // Eliminar usuario
+            document.getElementById('deleteUserForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const usuarioEliminar = {
+                    cedula: parseInt(document.getElementById('delCedula').value)
+                };
+                fetch('/webApp-repaso/Api', {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(usuarioEliminar)
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.message || 'Usuario eliminado');
+                            cargarUsuarios();
+                            e.target.reset();
+                        })
+                        .catch(err => alert('Error al eliminar usuario'));
+            });
+
+            document.getElementById('searchUserForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const cedula = parseInt(document.getElementById('searchCedula').value);
+                const searchUserList = document.getElementById('searchUserList');
+
+                if (isNaN(cedula)) {
+                    alert('Ingrese una cédula válida');
+                    return;
+                }
+
+                fetch(`/webApp-repaso/Api?cedula=${cedula}`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            searchUserList.innerHTML = '';
+                            const users = Array.isArray(data) ? data : [data];
+
+                            users.forEach(u => {
+                                const li = document.createElement('li');
+                                li.textContent = `${u.cedula} - ${u.nombre} ${u.apellido} | ${u.direccion} | ${u.telefono}`;
+                                searchUserList.appendChild(li);
+                            });
+
+                            e.target.reset();
+                        })
+                        .catch(err => {
+                            alert('Error al buscar usuario');
+                            console.error(err);
+                        });
+            });
+        </script>
+
+    </body>
+</html>
