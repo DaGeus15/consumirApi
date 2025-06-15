@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Estudiantes</title>
+</head>
+<body>
+<h1>Estudiantes</h1>
+<form th:action="@{/buscar}" method="get">
+    <input id="id" placeholder="ID" name="id" required/>
+    <button>Buscar</button>
+    <a href="/">Ver todos</a>
+</form>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Direccion</th>
+        <th>Telefono</th>
+        <th>Acciones
+        <th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="student : ${students}">
+        <td th:text="${student.id}"></td>
+        <td th:text="${student.nombre}"></td>
+        <td th:text="${student.apellido}"></td>
+        <td th:text="${student.direccion}"></td>
+        <td th:text="${student.telefono}"></td>
+        <td>
+            <form th:action="@{/borrar/{id}(id=${student.id})}" method="post">
+                <button>Borrar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h1>Crear Estudiante</h1>
+<form th:action="@{/crear}" method="post">
+    <input id="nombre" placeholder="Nombre" name="nombre" required/><br/>
+    <input id="apellido" placeholder="Apellido" name="apellido" required/><br/>
+    <input id="direccion" placeholder="Direccion" name="direccion" required/><br/>
+    <input id="telefono" placeholder="Telefono" name="telefono" required/><br/>
+    <button>Crear</button>
+</form>
+<h1>Editar Estudiante</h1>
+<form th:action="@{/editar}" method="post">
+    <input id="idEdit" placeholder="ID" name="id" required/><br/>
+    <input id="nombreEdit" placeholder="Nombre" name="nombre" required/><br/>
+    <input id="apellidoEdit" placeholder="Apellido" name="apellido" required/><br/>
+    <input id="direccionEdit" placeholder="Direccion" name="direccion" required/><br/>
+    <input id="telefonoEdit" placeholder="Telefono" name="telefono" required/><br/>
+    <button>Editar</button>
+</form>
+</body>
+</html>
